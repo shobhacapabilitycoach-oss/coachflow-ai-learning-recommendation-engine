@@ -83,12 +83,6 @@ SkillWeave Dynamics automates learner analysis by processing performance data, i
 
 <hr>
 
-<h2>Project Documentation</h2>
-
-<ul>
-<li><a href="README.md">View Project Documentation</a></li>
-</ul>
-
 <p>
 Created by Shobha Singh
 </p>
