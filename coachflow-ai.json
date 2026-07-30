@@ -1,0 +1,195 @@
+{
+  "name": "CoachFlow AI",
+  "nodes": [
+    {
+      "parameters": {
+        "jsCode": "{{$json[\"data\"]}}"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        656,
+        0
+      ],
+      "id": "6de3c850-1a7b-4b0c-bdc6-f2614d59bd86",
+      "name": "Performance Analyzer"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "GPT-4O-MINI"
+        },
+        "responses": {
+          "values": [
+            {},
+            {
+              "content": "=You are a sales performance coach.\n\nAnalyze the data below and identify the top 1-2 skill gaps.\n\nData:\nName: {{$json[\"Name\"]}}\nQuiz Score: {{$json[\"QuizScore\"]}}\nRoleplay Score: {{$json[\"RoleplayScore\"]}}\nConfidence: {{$json[\"Confidence\"]}}\nManager Feedback: {{$json[\"ManagerFeedback\"]}}\n\nChoose ONLY from:\n- Objection Handling\n- Negotiation\n- Follow-up Discipline\n- Product Knowledge\n\nRules:\n- Return only 1 or 2 skill gaps\n- Keep answer short\n- Do not explain"
+            }
+          ]
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2.3,
+      "position": [
+        880,
+        0
+      ],
+      "id": "0e8d45dd-b4d3-490f-b05e-476654bf67fc",
+      "name": "Diagnosis Agent",
+      "credentials": {
+        "openAiApi": {
+          "id": null,
+          "name": "",
+          "__aiGatewayManaged": true
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "GPT-4O-MINI"
+        },
+        "responses": {
+          "values": [
+            {
+              "content": "=You are an L&D expert.\n\nBased on the skill gap below, recommend:\n1. One micro-learning topic\n2. One practical activity\n\nSkill Gap:\n{{$json[\"text\"]}}\n\nKeep it short, specific, and actionable."
+            }
+          ]
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2.3,
+      "position": [
+        1232,
+        0
+      ],
+      "id": "62190694-765b-4f2b-b11f-d14013d5d999",
+      "name": "Recommendation Agent",
+      "credentials": {
+        "openAiApi": {
+          "id": null,
+          "name": "",
+          "__aiGatewayManaged": true
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "GPT-4O-MINI"
+        },
+        "responses": {
+          "values": [
+            {
+              "content": "=Write a personalized coaching message.\n\nLearner Name: {{$node[\"Sample Data\"].json[\"Name\"]}}\nScore: {{$node[\"Sample Data\"].json[\"Quiz Score\"]}}\nSkill Gap: {{$node[\"Diagnosis Agent\"].json[\"text\"]}}\nRecommendation: {{$node[\"Recommendation Agent\"].json[\"text\"]}}\n\nGuidelines:\n- Motivational and supportive\n- Max 80 words\n- Include a clear next step\n- Make it human-like (like a manager talking)"
+            }
+          ]
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2.3,
+      "position": [
+        1584,
+        0
+      ],
+      "id": "e94997d8-7eb7-4647-9d5e-6fa0199bf0fa",
+      "name": "Coaching Agent",
+      "credentials": {
+        "openAiApi": {
+          "id": null,
+          "name": "",
+          "__aiGatewayManaged": true
+        }
+      }
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "campaign-analyzer",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        400,
+        0
+      ],
+      "id": "c19abc77-f411-4e49-b99f-067062793cc8",
+      "name": "Webhook",
+      "webhookId": "95f26b12-b765-4649-bbb4-6e4cbf238af2"
+    }
+  ],
+  "connections": {
+    "Performance Analyzer": {
+      "main": [
+        [
+          {
+            "node": "Diagnosis Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Diagnosis Agent": {
+      "main": [
+        [
+          {
+            "node": "Recommendation Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Recommendation Agent": {
+      "main": [
+        [
+          {
+            "node": "Coaching Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Performance Analyzer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "staticData": null,
+  "pinData": {},
+  "triggerCount": 0,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  }
+}

@@ -1,0 +1,420 @@
+{
+  "name": "My workflow 2",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        400
+      ],
+      "id": "53cef410-412d-4712-a489-ab12f3fb4044",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1RcNAUbPAsDm9sAfuacVrAMKn_cUohqRH_XL-vAQGdn8",
+          "mode": "list",
+          "cachedResultName": "Training Completion Data",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1RcNAUbPAsDm9sAfuacVrAMKn_cUohqRH_XL-vAQGdn8/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1RcNAUbPAsDm9sAfuacVrAMKn_cUohqRH_XL-vAQGdn8/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        224,
+        400
+      ],
+      "id": "e3ddc354-38d7-423f-9755-460ba3b4f17e",
+      "name": "Read Learner Training Data",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "88KcEQEnksLN4iKP",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "return [\n  {\n    json: {\n      learners: items.map(item => item.json)\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        448,
+        400
+      ],
+      "id": "fa6b30c4-19e8-4ac7-b009-89221646d0e6",
+      "name": "Prepare Learner Dataset"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "learners",
+        "include": "allOtherFields",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        672,
+        400
+      ],
+      "id": "e2a6745c-2c27-48e0-9ac3-624f98c1e24d",
+      "name": "Process Each Learner"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const learner = $json.learners;\n\nconst quiz = Number(learner[\"Quiz Score (/100)\"]);\nconst roleplay = Number(learner[\"Role Play Score (/10)\"]);\nconst manager = Number(learner[\"Manager Feedback (/5)\"]);\n\nlet category = \"\";\n\nif (quiz < 60 || roleplay < 6 || manager < 3) {\n  category = \"Needs Immediate Support\";\n} else if (quiz <= 80 || roleplay <= 7 || manager === 3) {\n  category = \"Needs Reinforcement\";\n} else {\n  category = \"Performing Well\";\n}\n\nreturn {\n  json: {\n    ...learner,\n    learnerCategory: category\n  }\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        896,
+        400
+      ],
+      "id": "78aa9736-0eb9-49ae-b2c5-9ebb469a1a5d",
+      "name": "Analyze Learner Performance"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{$json.learnerCategory}}",
+                    "rightValue": "Needs Immediate Support",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "8406b814-c510-4d93-b0aa-bf1efc5303fc"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Needs Immediate Support"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "5a464b74-da55-438c-ae66-8987b89143cc",
+                    "leftValue": "={{$json.learnerCategory}}",
+                    "rightValue": "Needs Reinforcement",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Needs Reinforcement"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "bb99aad3-f8c3-4ef0-9cfb-c560a75e062e",
+                    "leftValue": "={{$json.learnerCategory}}",
+                    "rightValue": "Performing Well",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Performing Well"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        1120,
+        384
+      ],
+      "id": "58210fdc-b3a7-42bc-8028-9cb7648d2dec",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatAlibabaCloud",
+      "typeVersion": 1,
+      "position": [
+        1424,
+        112
+      ],
+      "id": "9c63099d-50e5-4c39-9224-05e5393786e3",
+      "name": "Qwen Cloud Chat Model",
+      "credentials": {
+        "alibabaCloudApi": {
+          "id": null,
+          "name": "",
+          "__aiGatewayManaged": true
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatAlibabaCloud",
+      "typeVersion": 1,
+      "position": [
+        1424,
+        512
+      ],
+      "id": "9573d866-df16-47d4-a9e2-c94d34656fc8",
+      "name": "Qwen Cloud Chat Model1",
+      "credentials": {
+        "alibabaCloudApi": {
+          "id": null,
+          "name": "",
+          "__aiGatewayManaged": true
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatAlibabaCloud",
+      "typeVersion": 1,
+      "position": [
+        1424,
+        1024
+      ],
+      "id": "08026cba-db01-4513-ad4a-e44aed84b7ad",
+      "name": "Qwen Cloud Chat Model2",
+      "credentials": {
+        "alibabaCloudApi": {
+          "id": null,
+          "name": "",
+          "__aiGatewayManaged": true
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are an expert Learning & Development Coach.\n\nAnalyze the learner's performance after completing Effective Business Communication training.\n\nLearner Name: {{$json[\"Learner Name\"]}}\nDepartment: {{$json[\"Department\"]}}\nQuiz Score: {{$json[\"Quiz Score (/100)\"]}}\nRole Play Score: {{$json[\"Role Play Score (/10)\"]}}\nManager Feedback: {{$json[\"Manager Feedback (/5)\"]}}\nCategory: {{$json[\"learnerCategory\"]}}\n\nGenerate:\n\n1. Personalized feedback (3-4 sentences)\n2. Three communication concepts to focus on\n3. One workplace practice activity\n4. One motivational encouragement message\n\nKeep the response professional, supportive, and concise.",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        1344,
+        -112
+      ],
+      "id": "77214518-7383-467f-9756-8ebb807835f3",
+      "name": "Generate Improvement Plan"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are an expert Learning & Development Coach.\n\nThe learner has completed Effective Business Communication training and requires reinforcement.\n\nLearner Name: {{$json[\"Learner Name\"]}}\nDepartment: {{$json[\"Department\"]}}\nQuiz Score: {{$json[\"Quiz Score (/100)\"]}}\nRole Play Score: {{$json[\"Role Play Score (/10)\"]}}\nManager Feedback: {{$json[\"Manager Feedback (/5)\"]}}\n\nGenerate:\n\n1. Positive feedback\n2. Two communication skills to strengthen\n3. One workplace communication scenario for practice\n4. One reflection question\n\nKeep the tone encouraging and professional.",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        1344,
+        288
+      ],
+      "id": "7b407430-b606-4aea-8d46-931da5401bfd",
+      "name": "Generate Reinforcement Activity"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are an expert Learning & Development Coach.\n\nThe learner performed exceptionally well in Effective Business Communication training.\n\nLearner Name: {{$json[\"Learner Name\"]}}\nDepartment: {{$json[\"Department\"]}}\nQuiz Score: {{$json[\"Quiz Score (/100)\"]}}\nRole Play Score: {{$json[\"Role Play Score (/10)\"]}}\nManager Feedback: {{$json[\"Manager Feedback (/5)\"]}}\n\nGenerate:\n\n1. Recognition message\n2. Advanced communication challenge\n3. Leadership communication activity\n4. Growth recommendation\n\nKeep the tone motivating and professional.",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        1344,
+        800
+      ],
+      "id": "f3b3f461-88ad-403d-8ee6-092112dd3980",
+      "name": "Generate Advanced Challenge"
+    }
+  ],
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Read Learner Training Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Learner Training Data": {
+      "main": [
+        [
+          {
+            "node": "Prepare Learner Dataset",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Learner Dataset": {
+      "main": [
+        [
+          {
+            "node": "Process Each Learner",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Process Each Learner": {
+      "main": [
+        [
+          {
+            "node": "Analyze Learner Performance",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Analyze Learner Performance": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Generate Improvement Plan",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Generate Reinforcement Activity",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Generate Reinforcement Activity",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Generate Advanced Challenge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Qwen Cloud Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Generate Improvement Plan",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Qwen Cloud Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Generate Reinforcement Activity",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Qwen Cloud Chat Model2": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Generate Advanced Challenge",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false,
+    "timeSavedMode": "fixed",
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "staticData": null,
+  "pinData": {},
+  "triggerCount": 0,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  }
+}
