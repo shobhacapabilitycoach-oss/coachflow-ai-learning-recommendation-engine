@@ -1,64 +1,97 @@
-# SkillWeave Dynamics
+<!DOCTYPE html>
+<html>
+<head>
+<title>SkillWeave Dynamics</title>
+</head>
 
-## Overview
+<body style="font-family:Arial; max-width:1000px; margin:auto; padding:20px;">
 
-SkillWeave Dynamics is an AI-powered learner analytics workflow built using n8n and Generative AI.
+<h1>SkillWeave Dynamics</h1>
 
-The solution analyzes learner performance data, identifies skill gaps, categorizes learners based on performance levels, and generates personalized development recommendations.
+<p>
+AI-powered learner analytics workflow designed to identify performance gaps,
+categorize learners, and generate personalized development recommendations.
+</p>
 
----
+<hr>
 
-## Business Problem
+<h2>Business Challenge</h2>
 
-Learning teams often spend significant time reviewing learner performance reports and manually creating development plans.
+<p>
+Learning teams often struggle to analyze learner performance data at scale and provide individualized coaching recommendations.
+</p>
 
-This process is:
+<h2>Solution</h2>
 
-- Time-consuming
-- Difficult to scale
-- Inconsistent across learners
+<p>
+SkillWeave Dynamics automates learner analysis by processing performance data, identifying development needs, and generating tailored action plans using AI.
+</p>
 
----
+<hr>
 
-## Solution
+<h2>Workflow Architecture</h2>
 
-SkillWeave Dynamics automates learner analysis and coaching recommendation generation.
+<img src="screenshots/workflow-overview-1.png"
+     alt="Workflow Architecture"
+     width="100%">
 
-The workflow:
+<br><br>
 
-1. Reads learner performance data
-2. Prepares learner datasets
-3. Processes each learner individually
-4. Analyzes performance metrics
-5. Categorizes learner performance
-6. Generates personalized recommendations
+<h2>Learner Analytics Workflow</h2>
 
----
+<img src="screenshots/workflow-overview-2.png"
+     alt="Learner Analytics Workflow"
+     width="100%">
 
-## Technology Stack
+<hr>
 
-- n8n
-- OpenAI
-- Google Sheets
-- Learning Analytics
-- Workflow Automation
-- Generative AI
+<h2>Workflow Process</h2>
 
----
+<ol>
+<li>Read learner training data</li>
+<li>Prepare learner dataset</li>
+<li>Process each learner individually</li>
+<li>Analyze learner performance</li>
+<li>Categorize learners by performance level</li>
+<li>Generate personalized development recommendations</li>
+</ol>
 
-## Skills Demonstrated
+<hr>
 
-- Learning Experience Design
-- Learning Analytics
-- AI Integration
-- Prompt Engineering
-- Workflow Design
-- Data-Driven Learning Solutions
-- Performance Consulting
+<h2>Business Impact</h2>
 
----
+<ul>
+<li>Reduces manual learner analysis effort</li>
+<li>Scales personalized coaching recommendations</li>
+<li>Improves consistency of learner feedback</li>
+<li>Enables data-driven learning interventions</li>
+<li>Accelerates development planning</li>
+</ul>
 
-## Author
+<hr>
 
-Shobha Singh
-Learning & Development Professional | Instructional Designer | AI-Powered Learning Solutions
+<h2>Technology Stack</h2>
+
+<ul>
+<li>n8n</li>
+<li>OpenAI</li>
+<li>Google Sheets</li>
+<li>Learning Analytics</li>
+<li>Workflow Automation</li>
+<li>Generative AI</li>
+</ul>
+
+<hr>
+
+<h2>Project Documentation</h2>
+
+<ul>
+<li><a href="README.md">View Project Documentation</a></li>
+</ul>
+
+<p>
+Created by Shobha Singh
+</p>
+
+</body>
+</html>
